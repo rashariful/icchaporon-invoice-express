@@ -1,6 +1,5 @@
 import { Schema, model } from "mongoose";
 import { shippingStatus } from "./invoice.const.js";
-
 // Declare the Schema of the Mongo model
 const orderSchema = new Schema(
   {
@@ -10,46 +9,41 @@ const orderSchema = new Schema(
       required: true,
       unique: true,
     },
-    cashier_name: {
-      type: String,
+    shop: {
+      type: Schema.Types.ObjectId,
+      ref: "Shop",
       required: true,
     },
-    customer_name: {
-      type: String,
-      required: true,
+    customer: {
+      name: {
+        type: String,
+      },
+      contactNo: {
+        type: String,
+      },
+      address: {
+        type: String,
+      },
     },
-    customer_phone: {
-      type: String,
-      required: true,
-    },
-    customer_address: {
-      type: String,
-      required: true,
-    },
-    delivery_charge: {
+    deliveryCharge: {
       type: Number,
-      required: true,
     },
-    paid_amount: {
+    paidAmount: {
       type: Number,
-      required: true,
     },
     note: {
       type: String,
     },
     subTotal: {
       type: Number,
-      required: true,
     },
-    total: {
+    grandTotal: {
       type: Number,
-      required: true,
     },
     due: {
       type: Number,
-      required: true,
     },
-    items: [
+    products: [
       {
         name: {
           type: String,
@@ -72,7 +66,7 @@ const orderSchema = new Schema(
     status: {
       type: String,
       enum: Object.values(shippingStatus),
-      default: shippingStatus.PENDING,
+      default: "pending",
     },
   },
   {
