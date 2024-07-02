@@ -13,7 +13,7 @@ const generateOrderID = async () => {
   const lastTwoDigitsOfYear = new Date().getFullYear().toString().slice(-2);
   // const timestamp = new Date(); // Use timestamp as the dynamic portion
 
-  let incrementedId = (parseInt(currentId) + 1).toString().padStart(5, "0");
+  let incrementedId = (parseInt(currentId) + 2).toString().padStart(5, "0");
 
   const orderID = `${lastTwoDigitsOfYear}${incrementedId}`; //not ok
 

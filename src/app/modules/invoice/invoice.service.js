@@ -5,17 +5,28 @@ import { Order } from "./invoice.model.js";
 // Declare the Services
 
 const createInvoice = async (payload) => {
-  const orderId = await generateOrderID();
-  payload.orderId = orderId;
+  // const orderId = await generateOrderID();
+  const lastOrder = await Order.find({}, { orderId: 1, _id: 0 }).sort({
+    createdAt: -1,
+  });
+  const lastTwoDigitOfYear = new Date().getFullYear().toString().slice(-2);
+  console.log(lastTwoDigitOfYear, "lastTwoDigitOfYear");
+
+  payload.orderId = lastOrder
+    ? `${lastTwoDigitOfYear}${(parseInt(lastOrder[0].orderId) + 1)
+        .toString()
+        .slice(2)}`
+    : `${lastTwoDigitOfYear}00001`;
   const result = await Order.create(payload);
+
   return result;
 };
 const getAllInvoice = async (query) => {
   const invoiceSearchableFields = [
     "orderId",
-    "customer_name",
+    "customer.name",
     "note",
-    "customer_phone",
+    "customer.contactNo",
   ];
 
   const resultQuery = new QueryBuilder(Order.find(), query)

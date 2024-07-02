@@ -4,7 +4,11 @@ import { InvoiceControllers } from "./invoice.controller.js";
 
 const router = express.Router();
 
-router.post("/", InvoiceControllers.createInvoice);
+router.post(
+  "/",
+
+  InvoiceControllers.createInvoice
+);
 router.get("/", InvoiceControllers.getAllInvoice);
 router.get("/:id", InvoiceControllers.getSingleInvoice);
 router.patch("/:id", InvoiceControllers.updateInvoice);
