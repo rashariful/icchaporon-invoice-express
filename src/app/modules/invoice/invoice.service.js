@@ -10,7 +10,6 @@ const createInvoice = async (payload) => {
     createdAt: -1,
   });
   const lastTwoDigitOfYear = new Date().getFullYear().toString().slice(-2);
-  console.log(lastTwoDigitOfYear, "lastTwoDigitOfYear");
 
   payload.orderId = lastOrder
     ? `${lastTwoDigitOfYear}${(parseInt(lastOrder[0].orderId) + 1)
