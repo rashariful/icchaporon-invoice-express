@@ -8,7 +8,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/server.js",
     "dev": "nodemon src/server.js",
-    "build": "babel src -d dist",
     "generate": "node generateModules/generateModules.js",
     "model": "npm run generate --model-name"
   },
