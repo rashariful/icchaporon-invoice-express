@@ -1,25 +1,19 @@
 import QueryBuilder from "../../helpers/QueryBuilder.js";
 import generateOrderID from "../../utils/generateOrderId.js";
+import removeFromTempFolder from "../../utils/removeFromTempFolder.js";
+import { Shop } from "../shop/shop.model.js";
 import { Order } from "./invoice.model.js";
+import XLSX from "xlsx";
 
 // Declare the Services
 
 const createInvoice = async (payload) => {
-  // const orderId = await generateOrderID();
-  const lastOrder = await Order.find({}, { orderId: 1, _id: 0 }).sort({
-    createdAt: -1,
-  });
-  const lastTwoDigitOfYear = new Date().getFullYear().toString().slice(-2);
-
-  payload.orderId = lastOrder
-    ? `${lastTwoDigitOfYear}${(parseInt(lastOrder[0].orderId) + 1)
-        .toString()
-        .slice(2)}`
-    : `${lastTwoDigitOfYear}00001`;
+  payload.orderId = await generateOrderID();
   const result = await Order.create(payload);
 
   return result;
 };
+
 const getAllInvoice = async (query) => {
   const invoiceSearchableFields = [
     "orderId",
@@ -45,10 +39,73 @@ const getAllInvoice = async (query) => {
     meta,
   };
 };
+
 const getSingleInvoice = async (id) => {
   const result = await Order.findById(id);
   return result;
 };
+
+const createInvoicesFromXLSX = async (file) => {
+  const workbook = XLSX.readFile(file.path);
+
+  const sheetName = workbook.SheetNames[0];
+  if (!sheetName) {
+    throw new Error("No sheets found in the Excel file");
+  }
+
+  const worksheet = workbook.Sheets[sheetName];
+  const shops = await Shop.find();
+  const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+    defval: "",
+    range: 1,
+  });
+  removeFromTempFolder(file.filename);
+  const groupedData = jsonData.reduce((acc, item) => {
+    if (!acc[item?.orderId]) {
+      acc[item?.orderId] = {
+        orderId: item?.orderId,
+        shop: shops.find((shop) => shop.name === item?.shop)?._id,
+        customer: {
+          name: item?.customerName,
+          contactNo: item?.customerContact.toString(),
+          address: item?.customeAddress,
+        },
+        deliveryCharge: item?.deliveryCharge,
+        paidAmount: item?.paidAmount,
+        note: item?.note,
+        subTotal: item?.subTotal,
+        grandTotal: item?.grandTotal,
+        due: item?.due,
+        products: [],
+      };
+    }
+    acc[item?.orderId].products.push({
+      name: item?.product,
+      qty: item?.quantity,
+      price: item?.price,
+      amount: item?.amount,
+    });
+    return acc;
+  }, {});
+
+  const updatedData = await Promise.all(
+    Object.values(groupedData).map(async (data) => {
+      data.orderId = await generateOrderID(data.orderId);
+      return data;
+    })
+  );
+  console.log(updatedData);
+
+  return updatedData;
+
+  const result = await Order.insertMany(updatedData);
+
+  return {
+    data: result,
+    meta: { total: result.length },
+  };
+};
+
 const updateInvoice = async (id, payload) => {
   const result = await Order.findByIdAndUpdate(id, payload, {
     new: true,
@@ -66,6 +123,7 @@ export const InvoiceServices = {
   createInvoice,
   getAllInvoice,
   getSingleInvoice,
+  createInvoicesFromXLSX,
   updateInvoice,
   deleteInvoice,
 };

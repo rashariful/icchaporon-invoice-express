@@ -7,17 +7,31 @@ const findLastOrderId = async () => {
   return lastOrder?.orderId ? lastOrder.orderId.substring(4, 10) : "00";
 };
 
-const generateOrderID = async () => {
-  const currentId = (await findLastOrderId()) || "00000";
+const generateOrderID = async (baseOrderId = null) => {
+  const lastOrder = await Order.find({}, { orderId: 1, _id: 0 }).sort({
+    createdAt: -1,
+  });
+  const lastTwoDigitOfYear = new Date().getFullYear().toString().slice(-2);
+  let newOrderId;
 
-  const lastTwoDigitsOfYear = new Date().getFullYear().toString().slice(-2);
-  // const timestamp = new Date(); // Use timestamp as the dynamic portion
+  if (baseOrderId) {
+    newOrderId = baseOrderId;
+  } else if (lastOrder.length > 0) {
+    const lastIdNumber = parseInt(lastOrder[0].orderId.substring(2)) + 1;
+    newOrderId = `${lastTwoDigitOfYear}${lastIdNumber
+      .toString()
+      .padStart(5, "0")}`;
+  } else {
+    newOrderId = `${lastTwoDigitOfYear}00001`;
+  }
 
-  let incrementedId = (parseInt(currentId) + 2).toString().padStart(5, "0");
+  // Ensure uniqueness
+  const existingOrder = await Order.findOne({ orderId: newOrderId });
+  if (existingOrder) {
+    return generateOrderID();
+  }
 
-  const orderID = `${lastTwoDigitsOfYear}${incrementedId}`; //not ok
-
-  return orderID;
+  return newOrderId;
 };
 
 export default generateOrderID;

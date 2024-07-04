@@ -8,6 +8,10 @@ const router = express.Router();
 
 router.post(
   "/",
+  (req, res, next) => {
+    console.log("req.body", req.body);
+    next();
+  },
   upload.single("file"),
   textToJsonPerser,
   ShopControllers.createShop
