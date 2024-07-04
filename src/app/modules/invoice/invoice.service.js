@@ -1,5 +1,5 @@
 import QueryBuilder from "../../helpers/QueryBuilder.js";
-import generateOrderID from "../../utils/generateOrderId.js";
+import generateOrderID from "../../utils/generateOrderID.js";
 import removeFromTempFolder from "../../utils/removeFromTempFolder.js";
 import { Shop } from "../shop/shop.model.js";
 import { Order } from "./invoice.model.js";
