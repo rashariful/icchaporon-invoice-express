@@ -12,26 +12,14 @@ const generateOrderID = async (baseOrderId = null) => {
     createdAt: -1,
   });
   const lastTwoDigitOfYear = new Date().getFullYear().toString().slice(-2);
-  let newOrderId;
 
-  if (baseOrderId) {
-    newOrderId = baseOrderId;
-  } else if (lastOrder.length > 0) {
-    const lastIdNumber = parseInt(lastOrder[0].orderId.substring(2)) + 1;
-    newOrderId = `${lastTwoDigitOfYear}${lastIdNumber
-      .toString()
-      .padStart(5, "0")}`;
-  } else {
-    newOrderId = `${lastTwoDigitOfYear}00001`;
-  }
+  const orderId = lastOrder
+    ? `${lastTwoDigitOfYear}${(parseInt(lastOrder[0].orderId) + 1)
+        .toString()
+        .slice(2)}`
+    : `${lastTwoDigitOfYear}00001`;
 
-  // Ensure uniqueness
-  const existingOrder = await Order.findOne({ orderId: newOrderId });
-  if (existingOrder) {
-    return generateOrderID();
-  }
-
-  return newOrderId;
+  return orderId;
 };
 
 export default generateOrderID;
