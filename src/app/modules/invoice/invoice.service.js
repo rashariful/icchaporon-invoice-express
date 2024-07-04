@@ -1,26 +1,26 @@
 import QueryBuilder from "../../helpers/QueryBuilder.js";
-import generateOrderID from "../../utils/generateOrderId.js";
 import removeFromTempFolder from "../../utils/removeFromTempFolder.js";
 import { Shop } from "../shop/shop.model.js";
 import { Order } from "./invoice.model.js";
 import XLSX from "xlsx";
-
 // Declare the Services
 
 const createInvoice = async (payload) => {
-  payload.orderId = await generateOrderID();
+  // const orderId = await generateOrderID();
+  const lastOrder = await Order.find({}, { orderId: 1, _id: 0 }).sort({
+    createdAt: -1,
+  });
+  const lastTwoDigitOfYear = new Date().getFullYear().toString().slice(-2);
+
+  payload.orderId = lastOrder
+    ? `${lastTwoDigitOfYear}${(parseInt(lastOrder[0].orderId) + 1).toString().slice(2)}`
+    : `${lastTwoDigitOfYear}00001`;
   const result = await Order.create(payload);
 
   return result;
 };
-
 const getAllInvoice = async (query) => {
-  const invoiceSearchableFields = [
-    "orderId",
-    "customer.name",
-    "note",
-    "customer.contactNo",
-  ];
+  const invoiceSearchableFields = ["orderId", "customer.name", "note", "customer.contactNo"];
 
   const resultQuery = new QueryBuilder(Order.find(), query)
     .search(invoiceSearchableFields)
@@ -39,12 +39,10 @@ const getAllInvoice = async (query) => {
     meta,
   };
 };
-
 const getSingleInvoice = async (id) => {
   const result = await Order.findById(id);
   return result;
 };
-
 const createInvoicesFromXLSX = async (file) => {
   const workbook = XLSX.readFile(file.path);
 
@@ -55,10 +53,7 @@ const createInvoicesFromXLSX = async (file) => {
 
   const worksheet = workbook.Sheets[sheetName];
   const shops = await Shop.find();
-  const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-    defval: "",
-    range: 1,
-  });
+  const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "", range: 1 });
   removeFromTempFolder(file.filename);
   const groupedData = jsonData.reduce((acc, item) => {
     if (!acc[item?.orderId]) {
@@ -88,15 +83,7 @@ const createInvoicesFromXLSX = async (file) => {
     return acc;
   }, {});
 
-  const updatedData = await Promise.all(
-    Object.values(groupedData).map(async (data) => {
-      data.orderId = await generateOrderID(data.orderId);
-      return data;
-    })
-  );
-  console.log(updatedData);
-
-  return updatedData;
+  const updatedData = Object.values(groupedData);
 
   const result = await Order.insertMany(updatedData);
 
@@ -105,7 +92,6 @@ const createInvoicesFromXLSX = async (file) => {
     meta: { total: result.length },
   };
 };
-
 const updateInvoice = async (id, payload) => {
   const result = await Order.findByIdAndUpdate(id, payload, {
     new: true,
@@ -127,3 +113,91 @@ export const InvoiceServices = {
   updateInvoice,
   deleteInvoice,
 };
+
+// [
+//   {
+//     orderId: 2400001,
+//     product: 'Iphone 6s',
+//     quantity: 2,
+//     price: 40000,
+//     amount: 80000,
+//     shop: 'icchaporon.com',
+//     customerName: 'John Wick',
+//     customerContact: 1811122233,
+//     customeAddress: 'North Badda',
+//     deliveryCharge: 120,
+//     paidAmount: 0,
+//     note: 'please pay',
+//     subTotal: 80000,
+//     grandTotal: 800120,
+//     due: 800120
+//   },
+//   {
+//     orderId: 2400002,
+//     product: 'Iphone 6s',
+//     quantity: 2,
+//     price: 40000,
+//     amount: 80000,
+//     shop: 'icchaporon.com',
+//     customerName: 'Tony Stark',
+//     customerContact: 1811122234,
+//     customeAddress: 'South Baddaa',
+//     deliveryCharge: 120,
+//     paidAmount: 0,
+//     note: 'please pay',
+//     subTotal: 80000,
+//     grandTotal: 800120,
+//     due: 800120
+//   },
+//   {
+//     orderId: 2400001,
+//     product: 'Readmi Note 11',
+//     quantity: 5,
+//     price: 30000,
+//     amount: 150000,
+//     shop: 'Mi Official Store',
+//     customerName: 'John Wick',
+//     customerContact: 1811122233,
+//     customeAddress: 'North Badda',
+//     deliveryCharge: 120,
+//     paidAmount: 0,
+//     note: 'please pay',
+//     subTotal: 150000,
+//     grandTotal: 150120,
+//     due: 150120
+//   },
+//   {
+//     orderId: 2400004,
+//     product: 'Iphone 6s',
+//     quantity: 2,
+//     price: 40000,
+//     amount: 80000,
+//     shop: 'icchaporon.com',
+//     customerName: 'Tom Holland',
+//     customerContact: 1811122236,
+//     customeAddress: 'Mohakhali',
+//     deliveryCharge: 120,
+//     paidAmount: 0,
+//     note: 'please pay',
+//     subTotal: 80000,
+//     grandTotal: 800120,
+//     due: 800120
+//   },
+//   {
+//     orderId: 2400001,
+//     product: 'Nokia 1200',
+//     quantity: 5,
+//     price: 2000,
+//     amount: 10000,
+//     shop: 'Mi Official Store',
+//     customerName: 'John Wick',
+//     customerContact: 1811122233,
+//     customeAddress: 'North Badda',
+//     deliveryCharge: 120,
+//     paidAmount: 0,
+//     note: 'please pay',
+//     subTotal: 10000,
+//     grandTotal: 10120,
+//     due: 10120
+//   }
+// ]

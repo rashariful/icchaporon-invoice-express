@@ -36,6 +36,16 @@ const getSingleInvoice = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const createInvoicesFromXLSX = catchAsync(async (req, res) => {
+  const result = await InvoiceServices.createInvoicesFromXLSX(req.file);
+  sendResponse(res, {
+    status: 201,
+    success: true,
+    message: "Invoice created successfully",
+    meta: result?.meta,
+    data: result?.data,
+  });
+});
 
 // Update invoice
 const updateInvoice = catchAsync(async (req, res) => {
@@ -65,6 +75,7 @@ export const InvoiceControllers = {
   createInvoice,
   getAllInvoice,
   getSingleInvoice,
+  createInvoicesFromXLSX,
   updateInvoice,
   deleteInvoice,
 };

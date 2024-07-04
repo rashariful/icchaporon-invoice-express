@@ -1,18 +1,27 @@
 import removeFromTempFolder from "../../utils/removeFromTempFolder.js";
-import xlsx from "xlsx";
+import XLSX from "xlsx";
 
 const xlToJson = async (file) => {
-  const workbook = xlsx.readFile(file.path);
+  const workbook = XLSX.readFile(file.path);
 
   const sheetName = workbook.SheetNames[0];
   if (!sheetName) {
     throw new Error("No sheets found in the Excel file");
   }
 
-  const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  const worksheet = workbook.Sheets[sheetName];
+  const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+    defval: "",
+    range: 1,
+  });
 
+  // Save JSON data to the database
+  // const savedData = await XlToJsonData.insertMany(jsonData);
+
+  // Remove the file from the temp folder
   removeFromTempFolder(file.filename);
-  return jsonData;
+
+  return savedData;
 };
 
 export const XlToJsonService = {
