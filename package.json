@@ -4,10 +4,20 @@
   "description": "",
   "main": "server.js",
   "type": "module",
+  "engines": {
+    "node": "v20.15.0",
+    "npm": "10.7.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/server.js",
-    "dev": "nodemon src/server.js"
+    "start": "nodemon src/server.js",
+    "dev": "nodemon src/server.js",
+    "build": "npm install --production=false && npm ci",
+    "generate": "node generateModules/generateModules.js",
+    "model": "npm run generate --model-name",
+    "lint": "npx lint",
+    "lint:strict": "npx lint '*/**/*.{js,jsx,ts,tsx}'",
+    "prettier": "npx prettier --write */**/*.{js,jsx,json,ts,tsx,md}",
+    "lint-prettier": "lint && prettier"
   },
   "keywords": [],
   "author": "",
