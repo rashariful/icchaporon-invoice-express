@@ -12,8 +12,6 @@
     "start": "nodemon src/server.js",
     "dev": "nodemon src/server.js",
     "build": "npm install --production=false && npm ci",
-    "generate": "node generateModules/generateModules.js",
-    "model": "npm run generate --model-name",
     "lint": "npx lint",
     "lint:strict": "npx lint '*/**/*.{js,jsx,ts,tsx}'",
     "prettier": "npx prettier --write */**/*.{js,jsx,json,ts,tsx,md}",
