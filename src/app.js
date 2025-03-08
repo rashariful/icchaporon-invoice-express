@@ -5,7 +5,14 @@ import cors from "cors";
 import router from "./app/routes/index.js";
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://vite-invoice-three.vercel.app"],
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
+    // allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
 // parser
 app.use(express.json());
