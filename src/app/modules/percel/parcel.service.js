@@ -55,7 +55,7 @@ const addParcel = async (payload) => {
     });
 
     if (!response.data || !response.data.success) {
-      throw new AppError(httpStatus.BAD_REQUEST, "Failed to create parcel");
+      throw new Error("Failed to create parcel with RxCourier");
     }
 
     await Order.findOneAndUpdate(
