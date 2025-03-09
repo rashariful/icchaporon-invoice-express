@@ -5,7 +5,7 @@ import { ParcelService } from "./parcel.service.js";
 const addParcel = catchAsync(async (req, res) => {
   const result = await ParcelService.addParcel(req.body);
   sendResponse(res, {
-    statusCode: 201,
+    status: 201,
     success: true,
     message: "Parcel added successfully",
     data: result,
