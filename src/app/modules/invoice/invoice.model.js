@@ -68,6 +68,9 @@ const orderSchema = new Schema(
       enum: Object.values(shippingStatus),
       default: "pending",
     },
+    parcelId: {
+      type: String,
+    },
   },
   {
     timestamps: true,
