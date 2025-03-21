@@ -31,7 +31,7 @@ const parcelSchema = new Schema(
       type: String,
       required: [true, "Pickup address is required"],
     },
-    delivery_type_id: {
+    isInsideDhaka: {
       type: Number,
       default: 2,
     },
