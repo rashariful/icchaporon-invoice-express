@@ -15,7 +15,7 @@ const addParcel = async (payload) => {
     // shop_id: vendor?.shopId || "",
     category_id: "1", // Fixed value
     weight: payload?.weight || 1,
-    delivery_type_id: payload?.delivery_type_id,
+    delivery_type_id: payload?.delivery_type_id ? "3" : "4",
     pickup_shop_name: "Icchaporon",
     pickup_phone: config.courier.email,
     pickup_address: payload?.pickupAddress,
