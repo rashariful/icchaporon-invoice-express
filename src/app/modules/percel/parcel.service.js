@@ -8,6 +8,7 @@ const addParcel = async (payload) => {
   if (!isOrderExist) {
     throw new Error("Order not found");
   }
+  console.log(payload);
 
   const deliveryUrl = config.courier.url;
 
@@ -53,7 +54,15 @@ const addParcel = async (payload) => {
         Authorization: `Bearer ${authToken}`,
       },
     });
+    // console.log(response.data);
 
+    console.log(response.data?.errors);
+
+    if (response?.data?.errors) {
+      throw new Error(response?.data?.message);
+    }
+
+    // console.log("hitting");
     if (!response.data || !response.data.success) {
       throw new Error("Failed to create parcel with RxCourier");
     }
@@ -67,8 +76,8 @@ const addParcel = async (payload) => {
       trackingId: response?.data?.data?.parcel?.tracking_id,
     };
   } catch (error) {
-    console.error("RxCourier Error:", error.response?.data || error.message);
-    throw new Error("Failed to create parcel with RxCourier");
+    console.error("RxCourier Error:", error.response?.data?.message || error.message);
+    throw new Error(error.response?.data?.message || error.message || "Failed to create parcel with RxCourier");
   }
 };
 

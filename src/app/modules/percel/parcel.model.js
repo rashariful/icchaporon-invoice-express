@@ -35,6 +35,10 @@ const parcelSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    deliveryType: {
+      type: Number,
+      required: [true, "Delivery type is required"],
+    },
     message: {
       type: String,
     },
